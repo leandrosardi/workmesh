@@ -153,7 +153,12 @@ module BlackStack
       self.name = h[:name]
       self.entity_table = h[:entity_table]
       self.entity_field_assignation = h[:entity_field_assignation]
-      self.protocols = h[:protocols]
+      self.protocols = []
+      if h[:protocols]
+        h[:protocols].each do |i|
+          self.protocols << Protocol.new(i)
+        end
+      end 
       self.assignation = h[:assignation]     
     end
     # return a hash descriptor of the worker
@@ -162,7 +167,7 @@ module BlackStack
         :name => self.name,
         :entity_table => self.entity_table,
         :entity_field_assignation => self.entity_field_assignation,
-        :protocols => self.protocols,
+        :protocols => self.protocols.map { |p| p.to_hash },
         :assignation => self.assignation
       }
     end
@@ -179,6 +184,18 @@ module BlackStack
 
     # Connection string to the database. Example: mysql2://user:password@localhost:3306/database
     @@connection_string = nil
+
+    # add_node
+    # add a node to the infrastructure
+    def self.add_node(h)
+      @@nodes << BlackStack::Workmesh::Node.new(h)
+    end
+
+    # add_service
+    # add a service to the infrastructure
+    def self.add_service(h)
+      @@services << BlackStack::Workmesh::Service.new(h)
+    end
 
   end # module Workmesh
 end # module BlackStack
