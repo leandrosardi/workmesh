@@ -4,11 +4,15 @@
 
 WorkMesh is an open-source micro-services orchestration system for automatng software scaling and work distribution.
 
-We define **micro-service** as an **external web-service** who receives tasks for any kind of offline processing, and returns the result to **master**.
+Some hints:
 
-For creating your own micro-service, refer to [micro.template](https://github.com/leandrosardi/micro.template) project.
+- In the **WorkMesh** world, a **micro-service** is an **external web-service** who receives tasks for any kind of offline processing, and returns the result to **master**. Just that. Nothing more.
 
-This library is for defininng the micro-service protocol at the **master** side.
+- This library is for defininng the micro-service protocol at the **master** side.
+
+- For creating your own micro-service, refer to [micro.template](https://github.com/leandrosardi/micro.template) project.
+
+- If you are looking for a multi-threading processing framework, you should refer to [Pampa](https://github.com/leandrosardi/pampa) instead.
 
 ## 1. Getting Started
 
@@ -270,6 +274,12 @@ BlackStack::WorkMesh.add_service({
 })
 ```
 
+When you re-assign an entity to another node, you can choose re-submit (push) all the data to the new new, from the very beginning.
+
+```ruby
+BlackStack::WorkMesh.assignation(:'micro.emails.timeline', {:reassign=>true, :repush=>true})
+```
+
 ## 4. Defining Assignation Criteria
 
 **WorkMesh** can assign entities based on 3 critierias:
@@ -344,4 +354,42 @@ BlackStack::WorkMesh.add_node({
         :'micro.emails.appending' => 5000,
     },
 })
+```
+
+## 5. Auto-Scaling
+
+_(this feature has not been developed yet)_
+
+**Auto-Scaling** is adding or removing nodes automatically.
+
+_(this feature has not been developed yet)_
+
+## 6. Workmesh CLI
+
+_(this feature has not been developed yet)_
+
+Getting the status of each node.
+
+```bash
+$ ruby mesh.rb --nodes
+``` 
+
+```bash
+|node       |       workload|
+|-----------|---------------|
+|node1      |             10|
+|node2      |          10000|
+```
+
+Getting the status of each service.
+
+```bash
+$ ruby mesh.rb --services
+``` 
+
+```bash
+|node       |          nodes|        pending|         failed|      processed|
+|-----------|---------------|---------------|---------------|---------------|
+|service1   |             10|             10|             10|             10|
+|service2   |           1000|             10|             10|             10|
 ```
