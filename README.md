@@ -4,7 +4,7 @@
 
 # WorkMesh
 
-WorkMesh is an open-source micro-services orchestration system for automatng software scaling and work distribution.
+WorkMesh is an open-source micro-services orchestration system for automating software scaling and work distribution.
 
 Some hints:
 
