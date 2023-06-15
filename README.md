@@ -1,5 +1,7 @@
 **>>This Project is Under Construction<<**
 
+![Gem version](https://img.shields.io/gem/v/workmesh)![Gem downloads](https://img.shields.io/gem/dt/workmesh)
+
 # WorkMesh
 
 WorkMesh is an open-source micro-services orchestration system for automatng software scaling and work distribution.
@@ -12,7 +14,7 @@ Some hints:
 
 - For creating your own micro-service, refer to [micro.template](https://github.com/leandrosardi/micro.template) project.
 
-- If you are looking for a multi-threading processing framework, you should refer to [Pampa](https://github.com/leandrosardi/pampa) instead.
+- If you are looking for a multi-threading processing framework, you should refer to [Pampa](https://github.com/leandrosardi/workmesh) instead.
 
 ## 1. Getting Started
 
