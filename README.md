@@ -87,7 +87,7 @@ The protocol for push data to the micro-serivce is like the code below.
 ```ruby
 BlackStack::WorkMesh.add_service({
     # unique service name
-    :name => 'micro.emails.delivery',
+    :name => 'micro.emails.timeline',
     # Define the tasks table: each record is a task.
     #
     # In this example, each account in our saas is assigned to a micr-service node.
@@ -146,7 +146,7 @@ The push of data to the micro-service will update some flags: `:entity_field_pus
 ```ruby
 BlackStack::WorkMesh.add_service({
     # unique service name
-    :name => 'micro.emails.delivery',
+    :name => 'micro.emails.timeline',
     # Define the tasks table: each record is a task.
     #
     # In this example, each account in our saas is assigned to a micr-service node.
@@ -183,7 +183,7 @@ The protocol for pulling data from the micro-service is like the code below.
 ```ruby
 BlackStack::WorkMesh.add_service({
     # unique service name
-    :name => 'micro.emails.delivery',
+    :name => 'micro.emails.timeline',
     # Define the tasks table: each record is a task.
     #
     # In this example, each account in our saas is assigned to a micr-service node.
@@ -232,7 +232,7 @@ The pull of data from the micro-service will update some flags too: `:entity_fie
 ```ruby
 BlackStack::WorkMesh.add_service({
     # unique service name
-    :name => 'micro.emails.delivery',
+    :name => 'micro.emails.timeline',
     # Define the tasks table: each record is a task.
     #
     # In this example, each account in our saas is assigned to a micr-service node.
