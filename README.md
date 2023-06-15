@@ -4,7 +4,11 @@
 
 WorkMesh is an open-source micro-services orchestration system for automatng software scaling and work distribution.
 
+We define **micro-service** as an **external web-service** who receives tasks for any kind of offline processing, and returns the result to **master**.
+
 For creating your own micro-service, refer to [micro.template](https://github.com/leandrosardi/micro.template) project.
+
+This library is for defininng the micro-service protocol at the **master** side.
 
 ## 1. Getting Started
 
@@ -41,7 +45,7 @@ BlackStack::WorkMesh.add_service({
     # 
     :entity_table => :account,
     # Define what is the column in the table where I store the name of the assigned node.
-    :entity_field_assignation => :'node_for_micro_emails_delivery',
+    :entity_field_assignation => :'node_for_micro_emails_timeline',
 })
 ```
 
@@ -74,10 +78,12 @@ The protocol is defining:
 - How one or more different objects are pushed to the micro-service.
 - How one or more different objects are updated from the micro-service.
 
+The protocol for push data to the micro-serivce is like the code below.
+
 ```ruby
 BlackStack::WorkMesh.add_service({
     # unique service name
-    :name => 'micro.emails.timeline',
+    :name => 'micro.emails.delivery',
     # Define the tasks table: each record is a task.
     #
     # In this example, each account in our saas is assigned to a micr-service node.
@@ -87,10 +93,180 @@ BlackStack::WorkMesh.add_service({
     # 
     :entity_table => :account,
     # Define what is the column in the table where I store the name of the assigned node.
-    :entity_field_assignation => :'node_for_micro_emails_delivery',
+    :entity_field_assignation => :'node_for_micro_emails_timeline',
 
-# TODO: Write this
+    # Defining micro-service protocol.
+    # This is the list of entities at the SaaS side.
+    :protocol => [{
+        # I need to push all the emails delivered and received, including bounce reports.
+        :entity_table => :'eml_delivery',
+        :entity_field_id => :id, # identify each record in the table uniquely
+        :entity_field_sort => :create_time # push/process/pull entities in this order - WorkMesh uses this field to know which was the latest record pushed/processed/pulled.
+        :push_function => Proc.new do |entity, l, *args|
+            # TODO: Code Me!
+            # Write a REST-API call here. 
+        end,
+    }, {
+        # I need to push all the emails opens
+        :entity_table => :'eml_open',
+        :entity_field_id => :id, # identify each record in the table uniquely
+        :entity_field_sort => :create_time # push/process/pull entities in this order - WorkMesh uses this field to know which was the latest record pushed/processed/pulled.
+        :push_function => Proc.new do |entity, l, *args|
+            # TODO: Code Me!
+            # Write a REST-API call here. 
+        end,
+    }, {
+        # I need to push all the clicks
+        :entity_table => :'eml_click',
+        :entity_field_id => :id, # identify each record in the table uniquely
+        :entity_field_sort => :create_time # push/process/pull entities in this order - WorkMesh uses this field to know which was the latest record pushed/processed/pulled.
+        :push_function => Proc.new do |entity, l, *args|
+            # TODO: Code Me!
+            # Write a REST-API call here. 
+        end,
+    }, {
+        # I need to push all the unsubscribes
+        :entity_table => :'eml_unsubscribe',
+        :entity_field_id => :id, # identify each record in the table uniquely
+        :entity_field_sort => :create_time # push/process/pull entities in this order - WorkMesh uses this field to know which was the latest record pushed/processed/pulled.
+        :push_function => Proc.new do |entity, l, *args|
+            # TODO: Code Me!
+            # Write a REST-API call here. 
+        end,
+    }],
+})
+```
 
+The push of data to the micro-service will update some flags: `:entity_field_push_time`, `:entity_field_push_success`, `:entity_field_push_error_description`.
+
+```ruby
+BlackStack::WorkMesh.add_service({
+    # unique service name
+    :name => 'micro.emails.delivery',
+    # Define the tasks table: each record is a task.
+    #
+    # In this example, each account in our saas is assigned to a micr-service node.
+    # In other words, the work is assigned at an account-level.
+    #
+    # Each account is stored in a row in the `account` table.
+    # 
+    :entity_table => :account,
+    # Define what is the column in the table where I store the name of the assigned node.
+    :entity_field_assignation => :'node_for_micro_emails_timeline',
+
+    # Defining micro-service protocol.
+    # This is the list of entities at the SaaS side.
+    :protocol => [{
+        # I need to push all the emails delivered and received, including bounce reports.
+        :entity_table => :'eml_delivery',
+        :entity_field_id => :id, # identify each record in the table uniquely
+        :entity_field_sort => :create_time # push/process/pull entities in this order - WorkMesh uses this field to know which was the latest record pushed/processed/pulled.
+        :push_function => Proc.new do |entity, l, *args|
+            # TODO: Code Me!
+            # Write a REST-API call for push a record. 
+        end,
+        :entity_field_push_time => :'micro_emails_delivery_push_time',
+        :entity_field_push_success => :'micro_emails_delivery_push_success',
+        :entity_field_push_error_description => :'micro_emails_delivery_push_error_description',
+    }, {
+        # ....
+    }],
+})
+```
+
+The protocol for pulling data from the micro-service is like the code below.
+
+```ruby
+BlackStack::WorkMesh.add_service({
+    # unique service name
+    :name => 'micro.emails.delivery',
+    # Define the tasks table: each record is a task.
+    #
+    # In this example, each account in our saas is assigned to a micr-service node.
+    # In other words, the work is assigned at an account-level.
+    #
+    # Each account is stored in a row in the `account` table.
+    # 
+    :entity_table => :account,
+    # Define what is the column in the table where I store the name of the assigned node.
+    :entity_field_assignation => :'node_for_micro_emails_timeline',
+
+    # Defining micro-service protocol.
+    # This is the list of entities at the SaaS side.
+    :protocol => [{
+        # I need to push all the emails delivered and received, including bounce reports.
+        :entity_table => :'eml_delivery',
+        :entity_field_id => :id, # identify each record in the table uniquely
+        :entity_field_sort => :create_time # push/process/pull entities in this order - WorkMesh uses this field to know which was the latest record pushed/processed/pulled.
+        :push_function => Proc.new do |entity, l, *args|
+            # TODO: Code Me!
+            # Write a REST-API call for push a record. 
+        end,
+        :entity_field_push_time => :'micro_emails_delivery_push_time',
+        :entity_field_push_success => :'micro_emails_delivery_push_success',
+        :entity_field_push_error_description => :'micro_emails_delivery_push_error_description',
+
+        # defining protocol for pull processed data
+        :pull_status_access_point => '/api/1.0/delivery/status.json'
+        :pull_function => Proc.new do |entity, l, *args|
+            # TODO: Code Me!
+            # Write a REST-API call for pull a record.
+        end,
+    }, {
+        # ....
+    }],
+})
+```
+
+Assuming that
+1. WorkMesh pushes entities in order definined by `:entity_field_sort`, and 
+2. Your micro-service will process each entity in the same order, ....
+... WorkMesh will call the access point `/api/1.0/delivery/status.json` to know what is the ID of the latest processed record, and will run the `pull_function` for all the processed records pending of being pulled.
+
+The pull of data from the micro-service will update some flags too: `:entity_field_pull_time`, `:entity_field_pull_success`, `:entity_field_pull_error_description`.
+
+```ruby
+BlackStack::WorkMesh.add_service({
+    # unique service name
+    :name => 'micro.emails.delivery',
+    # Define the tasks table: each record is a task.
+    #
+    # In this example, each account in our saas is assigned to a micr-service node.
+    # In other words, the work is assigned at an account-level.
+    #
+    # Each account is stored in a row in the `account` table.
+    # 
+    :entity_table => :account,
+    # Define what is the column in the table where I store the name of the assigned node.
+    :entity_field_assignation => :'node_for_micro_emails_timeline',
+
+    # Defining micro-service protocol.
+    # This is the list of entities at the SaaS side.
+    :protocol => [{
+        # I need to push all the emails delivered and received, including bounce reports.
+        :entity_table => :'eml_delivery',
+        :entity_field_id => :id, # identify each record in the table uniquely
+        :entity_field_sort => :create_time # push/process/pull entities in this order - WorkMesh uses this field to know which was the latest record pushed/processed/pulled.
+        :push_function => Proc.new do |entity, l, *args|
+            # TODO: Code Me!
+            # Write a REST-API call for push a record. 
+        end,
+        :entity_field_push_time => :'micro_emails_delivery_push_time',
+        :entity_field_push_success => :'micro_emails_delivery_push_success',
+        :entity_field_push_error_description => :'micro_emails_delivery_push_error_description',
+
+        # defining protocol for pull processed data
+        :pull_status_access_point => '/api/1.0/delivery/status.json'
+        :pull_function => Proc.new do |entity, l, *args|
+            # TODO: Code Me!
+            # Write a REST-API call for pull a record.
+        end,
+        :entity_field_pull_time => :'micro_emails_delivery_pull_time',
+        :entity_field_pull_success => :'micro_emails_delivery_pull_success',
+        :entity_field_pull_error_description => :'micro_emails_delivery_pull_error_description',
+    }, {
+        # ....
+    }],
 })
 ```
 
@@ -117,7 +293,7 @@ BlackStack::WorkMesh.add_service({
     # 
     :entity_table => :account,
     # Define what is the column in the table where I store the name of the assigned node.
-    :entity_field_assignation => :'node_for_micro_emails_delivery',
+    :entity_field_assignation => :'node_for_micro_emails_timeline',
 
     # Defining assignation criteria
     :assignation => :entityweight, # other choices are: `:roundrobin` and `:entitynumber`
