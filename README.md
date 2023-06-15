@@ -356,7 +356,21 @@ BlackStack::WorkMesh.add_node({
 })
 ```
 
-## 5. Auto-Scaling
+## 5. Running
+
+Pushing entities to the micro-services.
+
+```ruby
+BlackStack::WorkMesh.push :'micro.emails.timeline'
+```
+
+Pulling data from the micro-services.
+
+```ruby
+BlackStack::WorkMesh.pull :'micro.emails.timeline'
+```
+
+## 6. Auto-Scaling
 
 _(this feature has not been developed yet)_
 
@@ -364,7 +378,7 @@ _(this feature has not been developed yet)_
 
 _(this feature has not been developed yet)_
 
-## 6. Workmesh CLI
+## 7. Workmesh CLI
 
 _(this feature has not been developed yet)_
 
