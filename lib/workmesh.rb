@@ -55,6 +55,7 @@ module BlackStack
     end # class Node
 
     class Protocol
+      attr_accessor :name
       attr_accessor :entity_table, :entity_field_id, :entity_field_sort
       attr_accessor :push_function, :entity_field_push_time, :entity_field_push_success, :entity_field_push_error_description
       attr_accessor :pull_status_access_point
@@ -62,6 +63,9 @@ module BlackStack
 
       def self.descriptor_errors(h)
         errors = []
+        # validate: the key :name exists and is a string
+        errors << "The key :name is missing" if h[:name].nil?
+        errors << "The key :name must be an String" unless h[:name].is_a?(String)
         # validate: the key :entity_table exists and is an symbol
         errors << "The key :entity_table is missing" if h[:entity_table].nil?
         errors << "The key :entity_table must be an Class" unless h[:entity_table].is_a?(Class)
@@ -98,6 +102,7 @@ module BlackStack
       def initialze(h)
         errors = BlackStack::Wormesh::Protocol.descriptor_errors(h)
         raise "The protocol descriptor is not valid: #{errors.uniq.join(".\n")}" if errors.length > 0
+        self.name = h[:name]
         self.entity_table = h[:entity_table]
         self.entity_field_id = h[:entity_field_id]
         self.entity_field_sort = h[:entity_field_sort]
@@ -113,6 +118,7 @@ module BlackStack
 
       def to_hash()
         ret = super()
+        ret[:name] = self.name
         ret[:entity_table] = self.entity_table
         ret[:entity_field_id] = self.entity_field_id
         ret[:entity_field_sort] = self.entity_field_sort
@@ -125,6 +131,12 @@ module BlackStack
         ret[:entity_field_pull_success] = self.entity_field_pull_success
         ret[:entity_field_pull_error_description] = self.entity_field_pull_error_description
         ret
+      end
+
+      # execute the push function of this protocol, and update the push flags
+      def push(entity, node)
+        raise 'The push function is not defined' if self.push_function.nil?
+        raise 'Not implemented yet'
       end
     end # class Protocol
 
@@ -171,7 +183,8 @@ module BlackStack
         self.protocols = []
         if h[:protocols]
           h[:protocols].each do |i|
-            self.protocols << Protocol.new(i)
+binding.pry
+            self.protocols << BlackStack::Workmesh::Protocol.new(i)
           end
         end 
         self.assignation = h[:assignation]     
@@ -185,6 +198,10 @@ module BlackStack
           :protocols => self.protocols.map { |p| p.to_hash },
           :assignation => self.assignation
         }
+      end
+      # get a protocol from its name
+      def protocol(name)
+        self.protocols.select { |p| p.name.to_s == name.to_s }.first
       end
     end # class Service
 
@@ -242,6 +259,10 @@ module BlackStack
       @@nodes
     end
 
+    def self.node(name)
+      @@nodes.select { |n| n.name.to_s == name.to_s }.first
+    end
+
     # add_service
     # add a service to the infrastructure
     def self.add_service(h)
@@ -250,6 +271,10 @@ module BlackStack
 
     def self.services
       @@services
+    end
+
+    def self.service(name)
+      @@services.select { |s| s.name.to_s == name.to_s }.first
     end
 
     # assign object to a node using a round-robin algorithm
