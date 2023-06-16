@@ -188,6 +188,9 @@ module BlackStack
       end
     end # class Service
 
+    # hash with the round-robin positions per service.
+    @@roundrobin = {}
+
     # infrastructure configuration
     @@nodes = []
     @@services = []
@@ -253,16 +256,16 @@ module BlackStack
     # this method is used when the service assignation is :roundrobin
     # this method is for internal use only, and it should not be called directly.
     def self.roundrobing(o, service_name)
-      @@i = 0
+      @@roundrobin[service_name] = 0 if @@roundrobin[service_name].nil?
       # getting the service
       s = @@services.select { |s| s.name.to_s == service_name.to_s }.first
       # getting all the nodes assigned to the service
       nodes = @@nodes.select { |n| n.workmesh_service.to_s == service_name.to_s }.sort_by { |n| n.name.to_s }
-      # increase @@i
-      @@i += 1
-      @@i = 0 if @@i >= nodes.length
+      # increase i
+      @@roundrobin[service_name] += 1
+      @@roundrobin[service_name] = 0 if @@roundrobin[service_name] >= nodes.length
       # assign the object to the node
-      n = nodes[@@i]
+      n = nodes[@@roundrobin[service_name]]
       o[s.entity_field_assignation] = n.name
       o.save
       # return
