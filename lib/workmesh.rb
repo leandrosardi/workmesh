@@ -99,8 +99,8 @@ module BlackStack
         errors.uniq
       end
 
-      def initialze(h)
-        errors = BlackStack::Wormesh::Protocol.descriptor_errors(h)
+      def initialize(h)
+        errors = BlackStack::Workmesh::Protocol.descriptor_errors(h)
         raise "The protocol descriptor is not valid: #{errors.uniq.join(".\n")}" if errors.length > 0
         self.name = h[:name]
         self.entity_table = h[:entity_table]
@@ -183,7 +183,6 @@ module BlackStack
         self.protocols = []
         if h[:protocols]
           h[:protocols].each do |i|
-binding.pry
             self.protocols << BlackStack::Workmesh::Protocol.new(i)
           end
         end 
