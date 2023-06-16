@@ -1,0 +1,11 @@
+# ignore lock files
+*.lock
+
+# ignore log files
+*.log
+
+# ignore .project file created by IDE
+.project
+
+# production configuration files
+config.rb

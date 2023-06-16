@@ -2,13 +2,13 @@
 
 ![Gem version](https://img.shields.io/gem/v/workmesh)![Gem downloads](https://img.shields.io/gem/dt/workmesh)
 
-# WorkMesh
+# Workmesh
 
-WorkMesh is an open-source micro-services orchestration system for automating software scaling and work distribution.
+Workmesh is an open-source micro-services orchestration system for automating software scaling and work distribution.
 
 Some hints:
 
-- In the **WorkMesh** world, a **micro-service** is an **external web-service** who receives tasks for any kind of offline processing, and returns the result to **master**. Just that. Nothing more.
+- In the **Workmesh** world, a **micro-service** is an **external web-service** who receives tasks for any kind of offline processing, and returns the result to **master**. Just that. Nothing more.
 
 - This library is for defininng the micro-service protocol at the **master** side.
 
@@ -18,7 +18,7 @@ Some hints:
 
 ## 1. Getting Started
 
-### 1.1. Installing WorkMesh
+### 1.1. Installing Workmesh
 
 ```bash
 gem install workmesh
@@ -27,19 +27,24 @@ gem install workmesh
 ### 1.2. Defining Nodes
 
 ```ruby
-BlackStack::WorkMesh.add_node({
+BlackStack::Workmesh.add_node({
     # unique node name
     :name => 'local',
     # setup REST-API communication
     :net_remote_ip => '127.0.0.1',
-    :workmesh_api_key => '****', # keep this secret - don't push this to your repository.  
+    :ssh_username => 'leandro', # example: root
+    :ssh_port => 22,
+    :ssh_password => '2404',
+    # workmesh parameters
+    :workmesh_api_key => '****', # keep this secret - don't push this to your repository. 
+    :workmesh_port => 3000, 
 })
 ```
 
 ### 1.3. Defining Services
 
 ```ruby
-BlackStack::WorkMesh.add_service({
+BlackStack::Workmesh.add_service({
     # unique service name
     :name => 'micro.emails.timeline',
     # Define the tasks table: each record is a task.
@@ -60,7 +65,7 @@ Deciding at which is the right entity for distributing your work is an important
 ### 1.4. Assigning your Entities
 
 ```ruby
-BlackStack::WorkMesh.assignation(:'micro.emails.timeline')
+BlackStack::Workmesh.assignation(:'micro.emails.timeline')
 ```
 
 ## 2. Re-Assigning your Entities
@@ -74,7 +79,7 @@ This code works for:
 Simply call the `assignation` method again, with the `:reassign` modifier.
 
 ```ruby
-BlackStack::WorkMesh.assignation(:'micro.emails.timeline', {:reassign=>true})
+BlackStack::Workmesh.assignation(:'micro.emails.timeline', {:reassign=>true})
 ```
 
 ## 3. Defining Protocol
@@ -87,7 +92,7 @@ The protocol is defining:
 The protocol for push data to the micro-serivce is like the code below.
 
 ```ruby
-BlackStack::WorkMesh.add_service({
+BlackStack::Workmesh.add_service({
     # unique service name
     :name => 'micro.emails.timeline',
     # Define the tasks table: each record is a task.
@@ -107,7 +112,7 @@ BlackStack::WorkMesh.add_service({
         # I need to push all the emails delivered and received, including bounce reports.
         :entity_table => :'eml_delivery',
         :entity_field_id => :id, # identify each record in the table uniquely
-        :entity_field_sort => :create_time # push/process/pull entities in this order - WorkMesh uses this field to know which was the latest record pushed/processed/pulled.
+        :entity_field_sort => :create_time # push/process/pull entities in this order - Workmesh uses this field to know which was the latest record pushed/processed/pulled.
         :push_function => Proc.new do |entity, l, *args|
             # TODO: Code Me!
             # Write a REST-API call here. 
@@ -116,7 +121,7 @@ BlackStack::WorkMesh.add_service({
         # I need to push all the emails opens
         :entity_table => :'eml_open',
         :entity_field_id => :id, # identify each record in the table uniquely
-        :entity_field_sort => :create_time # push/process/pull entities in this order - WorkMesh uses this field to know which was the latest record pushed/processed/pulled.
+        :entity_field_sort => :create_time # push/process/pull entities in this order - Workmesh uses this field to know which was the latest record pushed/processed/pulled.
         :push_function => Proc.new do |entity, l, *args|
             # TODO: Code Me!
             # Write a REST-API call here. 
@@ -125,7 +130,7 @@ BlackStack::WorkMesh.add_service({
         # I need to push all the clicks
         :entity_table => :'eml_click',
         :entity_field_id => :id, # identify each record in the table uniquely
-        :entity_field_sort => :create_time # push/process/pull entities in this order - WorkMesh uses this field to know which was the latest record pushed/processed/pulled.
+        :entity_field_sort => :create_time # push/process/pull entities in this order - Workmesh uses this field to know which was the latest record pushed/processed/pulled.
         :push_function => Proc.new do |entity, l, *args|
             # TODO: Code Me!
             # Write a REST-API call here. 
@@ -134,7 +139,7 @@ BlackStack::WorkMesh.add_service({
         # I need to push all the unsubscribes
         :entity_table => :'eml_unsubscribe',
         :entity_field_id => :id, # identify each record in the table uniquely
-        :entity_field_sort => :create_time # push/process/pull entities in this order - WorkMesh uses this field to know which was the latest record pushed/processed/pulled.
+        :entity_field_sort => :create_time # push/process/pull entities in this order - Workmesh uses this field to know which was the latest record pushed/processed/pulled.
         :push_function => Proc.new do |entity, l, *args|
             # TODO: Code Me!
             # Write a REST-API call here. 
@@ -146,7 +151,7 @@ BlackStack::WorkMesh.add_service({
 The push of data to the micro-service will update some flags: `:entity_field_push_time`, `:entity_field_push_success`, `:entity_field_push_error_description`.
 
 ```ruby
-BlackStack::WorkMesh.add_service({
+BlackStack::Workmesh.add_service({
     # unique service name
     :name => 'micro.emails.timeline',
     # Define the tasks table: each record is a task.
@@ -166,7 +171,7 @@ BlackStack::WorkMesh.add_service({
         # I need to push all the emails delivered and received, including bounce reports.
         :entity_table => :'eml_delivery',
         :entity_field_id => :id, # identify each record in the table uniquely
-        :entity_field_sort => :create_time # push/process/pull entities in this order - WorkMesh uses this field to know which was the latest record pushed/processed/pulled.
+        :entity_field_sort => :create_time # push/process/pull entities in this order - Workmesh uses this field to know which was the latest record pushed/processed/pulled.
         :push_function => Proc.new do |entity, l, *args|
             # TODO: Code Me!
             # Write a REST-API call for push a record. 
@@ -183,7 +188,7 @@ BlackStack::WorkMesh.add_service({
 The protocol for pulling data from the micro-service is like the code below.
 
 ```ruby
-BlackStack::WorkMesh.add_service({
+BlackStack::Workmesh.add_service({
     # unique service name
     :name => 'micro.emails.timeline',
     # Define the tasks table: each record is a task.
@@ -203,7 +208,7 @@ BlackStack::WorkMesh.add_service({
         # I need to push all the emails delivered and received, including bounce reports.
         :entity_table => :'eml_delivery',
         :entity_field_id => :id, # identify each record in the table uniquely
-        :entity_field_sort => :create_time # push/process/pull entities in this order - WorkMesh uses this field to know which was the latest record pushed/processed/pulled.
+        :entity_field_sort => :create_time # push/process/pull entities in this order - Workmesh uses this field to know which was the latest record pushed/processed/pulled.
         :push_function => Proc.new do |entity, l, *args|
             # TODO: Code Me!
             # Write a REST-API call for push a record. 
@@ -225,14 +230,14 @@ BlackStack::WorkMesh.add_service({
 ```
 
 Assuming that
-1. WorkMesh pushes entities in order definined by `:entity_field_sort`, and 
+1. Workmesh pushes entities in order definined by `:entity_field_sort`, and 
 2. Your micro-service will process each entity in the same order, ....
-... WorkMesh will call the access point `/api/1.0/delivery/status.json` to know what is the ID of the latest processed record, and will run the `pull_function` for all the processed records pending of being pulled.
+... Workmesh will call the access point `/api/1.0/delivery/status.json` to know what is the ID of the latest processed record, and will run the `pull_function` for all the processed records pending of being pulled.
 
 The pull of data from the micro-service will update some flags too: `:entity_field_pull_time`, `:entity_field_pull_success`, `:entity_field_pull_error_description`.
 
 ```ruby
-BlackStack::WorkMesh.add_service({
+BlackStack::Workmesh.add_service({
     # unique service name
     :name => 'micro.emails.timeline',
     # Define the tasks table: each record is a task.
@@ -252,7 +257,7 @@ BlackStack::WorkMesh.add_service({
         # I need to push all the emails delivered and received, including bounce reports.
         :entity_table => :'eml_delivery',
         :entity_field_id => :id, # identify each record in the table uniquely
-        :entity_field_sort => :create_time # push/process/pull entities in this order - WorkMesh uses this field to know which was the latest record pushed/processed/pulled.
+        :entity_field_sort => :create_time # push/process/pull entities in this order - Workmesh uses this field to know which was the latest record pushed/processed/pulled.
         :push_function => Proc.new do |entity, l, *args|
             # TODO: Code Me!
             # Write a REST-API call for push a record. 
@@ -279,12 +284,12 @@ BlackStack::WorkMesh.add_service({
 When you re-assign an entity to another node, you can choose re-submit (push) all the data to the new new, from the very beginning.
 
 ```ruby
-BlackStack::WorkMesh.assignation(:'micro.emails.timeline', {:reassign=>true, :repush=>true})
+BlackStack::Workmesh.assignation(:'micro.emails.timeline', {:reassign=>true, :repush=>true})
 ```
 
 ## 4. Defining Assignation Criteria
 
-**WorkMesh** can assign entities based on 3 critierias:
+**Workmesh** can assign entities based on 3 critierias:
 
 1. Round-Robin (default).
 2. Number of Entities.
@@ -293,7 +298,7 @@ BlackStack::WorkMesh.assignation(:'micro.emails.timeline', {:reassign=>true, :re
 Deciding which criteria works better for your micro-service is an important design decision.
 
 ```ruby
-BlackStack::WorkMesh.add_service({
+BlackStack::Workmesh.add_service({
     # unique service name
     :name => 'micro.emails.timeline',
     # Define the tasks table: each record is a task.
@@ -322,12 +327,17 @@ BlackStack::WorkMesh.add_service({
 You can also define the maximum weight supported by a node.
 
 ```ruby
-BlackStack::WorkMesh.add_node({
+BlackStack::Workmesh.add_node({
     # unique node name
     :name => 'local',
     # setup REST-API communication
     :net_remote_ip => '127.0.0.1',
+    :ssh_username => 'leandro', # example: root
+    :ssh_port => 22,
+    :ssh_password => '2404',
+    # workmesh parameters
     :workmesh_api_key => '****', # keep this secret - don't push this to your repository.  
+    :workmesh_port => 3000, 
     # max weight supported
     max_weight => {
         # define the max-weight supported for each service with assignation criteria `:entityweight`
@@ -339,12 +349,17 @@ BlackStack::WorkMesh.add_node({
 You can also define the maximum number of entities supported by a node.
 
 ```ruby
-BlackStack::WorkMesh.add_node({
+BlackStack::Workmesh.add_node({
     # unique node name
     :name => 'local',
     # setup REST-API communication
     :net_remote_ip => '127.0.0.1',
-    :workmesh_api_key => '****', # keep this secret - don't push this to your repository.  
+    :ssh_username => 'leandro', # example: root
+    :ssh_port => 22,
+    :ssh_password => '2404',
+    # workmesh parameters
+    :workmesh_api_key => '****', # keep this secret - don't push this to your repository. 
+    :workmesh_port => 3000,  
     # max weight supported
     max_weight => {
         # define the max-weight supported for each service with assignation criteria `:entityweight`
@@ -363,13 +378,13 @@ BlackStack::WorkMesh.add_node({
 Pushing entities to the micro-services.
 
 ```ruby
-BlackStack::WorkMesh.push :'micro.emails.timeline'
+BlackStack::Workmesh.push :'micro.emails.timeline'
 ```
 
 Pulling data from the micro-services.
 
 ```ruby
-BlackStack::WorkMesh.pull :'micro.emails.timeline'
+BlackStack::Workmesh.pull :'micro.emails.timeline'
 ```
 
 ## 6. Auto-Scaling
