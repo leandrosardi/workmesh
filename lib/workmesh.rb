@@ -6,6 +6,27 @@ require 'blackstack-deployer'
 require 'simple_command_line_parser'
 require 'simple_cloud_logging'
 
+=begin
+# TODO: Move this to a gem with the CRDB module
+#
+# return a postgresql uuid
+#
+def guid()
+  DB['SELECT gen_random_uuid() AS id'].first[:id]
+end
+=end
+
+# TODO: Move new() to a gem with the CRDB module
+#
+# return current datetime with format `%Y-%m-%d %H:%M:%S %Z`, using the timezone of the database (`select current_setting('TIMEZONE')`)
+# TODO: I am hardcoding the value of `tz` because for any reason `SELECT current_setting('TIMEZONE')` returns `UTC` instead of 
+# `America/Argentina/Buenos_Aires` when I run it from Ruby. Be sure your database is ALWAYS configured with the correct timezone.
+#
+def now()
+  tz = 'America/Argentina/Buenos_Aires' #DB["SELECT current_setting('TIMEZONE') AS tz"].first[:tz]
+  DB["SELECT current_timestamp() at TIME ZONE '#{tz}' AS now"].first[:now]
+end
+
 module BlackStack
   module Workmesh
     # stub node class
@@ -136,7 +157,18 @@ module BlackStack
       # execute the push function of this protocol, and update the push flags
       def push(entity, node)
         raise 'The push function is not defined' if self.push_function.nil?
-        raise 'Not implemented yet'
+        entity[entity_field_push_time] = now()
+        begin
+          self.push_function.call(entity, node)
+          entity[entity_field_push_success] = true
+          entity[entity_field_push_error_description] = nil
+          entity.save
+        rescue => e
+          entity[entity_field_push_success] = false
+          entity[entity_field_push_error_description] = e.message
+          entity.save
+          raise e
+        end
       end
     end # class Protocol
 

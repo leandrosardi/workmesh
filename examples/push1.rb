@@ -12,5 +12,5 @@ n = BlackStack::Workmesh.node(o.node_for_micro_dfyl_appending)
 l.logf n.name.green
 
 l.logs "Assigning the order #{o.id}... "
-BlackStack::Workmesh.service(:'micro.dfyl.appending').protocol('push_orders').push(o, n)
+BlackStack::Workmesh.service(:'micro.dfyl.appending').protocol('push_order').push(o, n)
 l.done
