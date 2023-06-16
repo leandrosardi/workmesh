@@ -280,6 +280,13 @@ module BlackStack
       raise "The service #{service_name} does not exists" if s.nil?
       # validate: the object o is an instance of the Class defined in the service descriptor (:entity_table)
       raise "The object o is not an instance of :entity_table (#{s.entity_table.to_s})" unless o.is_a?(s.entity_table)
+      # reassign
+      if h[:reassign] == true
+        o[s.entity_field_assignation] = nil
+        o.save
+      end
+      # validate: the object o has not been assigned yet
+      raise "The object o has been already assigned to a node. Use the :reassign parameter for reassignation." unless o[s.entity_field_assignation].nil?
       # decide the assignation method
       if s.assignation == :entityweight
         raise 'The assignation method :entityweight is not implemented yet.'

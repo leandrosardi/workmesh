@@ -71,8 +71,6 @@ BlackStack::Workmesh.assign(account, :'micro.emails.timeline')
 
 ## 2. Re-Assigning your Entities
 
-_(this feature has not been developed yet)_
-
 This code works for:
 
 - When removing a node, you need to re-assign its entitties.
