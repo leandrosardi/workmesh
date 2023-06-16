@@ -56,7 +56,7 @@ module BlackStack
         errors = []
         # validate: the key :entity_table exists and is an symbol
         errors << "The key :entity_table is missing" if h[:entity_table].nil?
-        errors << "The key :entity_table must be an Symbol" unless h[:entity_table].is_a?(Symbol)
+        errors << "The key :entity_table must be an Class" unless h[:entity_table].is_a?(Class)
         # validate: the key :entity_field_id exists and is an symbol
         errors << "The key :entity_field_id is missing" if h[:entity_field_id].nil?
         errors << "The key :entity_field_id must be an Symbol" unless h[:entity_field_id].is_a?(Symbol)
@@ -133,7 +133,7 @@ module BlackStack
         errors << "The key :name must be an String" unless h[:name].is_a?(String)
         # validate: the key :entity_table exists and is an symbol
         errors << "The key :entity_table is missing" if h[:entity_table].nil?
-        errors << "The key :entity_table must be an Symbol" unless h[:entity_table].is_a?(Symbol)
+        errors << "The key :entity_table must be an Class" unless h[:entity_table].is_a?(Class)
         # validate: the key :entity_field_assignation exists and is an symbol
         errors << "The key :entity_field_assignation is missing" if h[:entity_field_assignation].nil?
         errors << "The key :entity_field_assignation must be an Symbol" unless h[:entity_field_assignation].is_a?(Symbol)
@@ -231,6 +231,16 @@ module BlackStack
     # add a service to the infrastructure
     def self.add_service(h)
       @@services << BlackStack::Workmesh::Service.new(h)
+    end
+
+    # assign object to a node
+    def self.assign(o, service_name, h = {})
+      # getting the service
+      s = @@services.select { |s| s.name.to_s == service_name.to_s }.first
+      # validate: the service exists
+      raise "The service #{service_name} does not exists" if s.nil?
+      # validate: the object o is an instance of the Class defined in the service descriptor (:entity_table)
+      raise "The object o is not an instance of :entity_table (#{s.entity_table.to_s})" unless o.is_a?(s.entity_table)
     end
 
   end # module Workmesh

@@ -54,7 +54,7 @@ BlackStack::Workmesh.add_service({
     #
     # Each account is stored in a row in the `account` table.
     # 
-    :entity_table => :account,
+    :entity_table => BlackStack::MySaaS::Account,
     # Define what is the column in the table where I store the name of the assigned node.
     :entity_field_assignation => :'node_for_micro_emails_timeline',
 })
@@ -65,7 +65,8 @@ Deciding at which is the right entity for distributing your work is an important
 ### 1.4. Assigning your Entities
 
 ```ruby
-BlackStack::Workmesh.assignation(:'micro.emails.timeline')
+account = BlackStack::MySaaS::Account.first
+BlackStack::Workmesh.assign(account, :'micro.emails.timeline')
 ```
 
 ## 2. Re-Assigning your Entities
@@ -76,10 +77,10 @@ This code works for:
 
 - When adding a new node, you may want to re-distribute your entities.
 
-Simply call the `assignation` method again, with the `:reassign` modifier.
+Simply call the `assign` method again, with the `:reassign` modifier.
 
 ```ruby
-BlackStack::Workmesh.assignation(:'micro.emails.timeline', {:reassign=>true})
+BlackStack::Workmesh.assign(account, :'micro.emails.timeline', {:reassign=>true})
 ```
 
 ## 3. Defining Protocol
@@ -102,7 +103,7 @@ BlackStack::Workmesh.add_service({
     #
     # Each account is stored in a row in the `account` table.
     # 
-    :entity_table => :account,
+    :entity_table => BlackStack::MySaaS::Account,
     # Define what is the column in the table where I store the name of the assigned node.
     :entity_field_assignation => :'node_for_micro_emails_timeline',
 
@@ -110,7 +111,7 @@ BlackStack::Workmesh.add_service({
     # This is the list of entities at the SaaS side.
     :protocol => [{
         # I need to push all the emails delivered and received, including bounce reports.
-        :entity_table => :'eml_delivery',
+        :entity_table => BlackStack::Emails::Delivery,
         :entity_field_id => :id, # identify each record in the table uniquely
         :entity_field_sort => :create_time # push/process/pull entities in this order - Workmesh uses this field to know which was the latest record pushed/processed/pulled.
         :push_function => Proc.new do |entity, l, *args|
@@ -119,7 +120,7 @@ BlackStack::Workmesh.add_service({
         end,
     }, {
         # I need to push all the emails opens
-        :entity_table => :'eml_open',
+        :entity_table => BlackStack::Emails::Open,
         :entity_field_id => :id, # identify each record in the table uniquely
         :entity_field_sort => :create_time # push/process/pull entities in this order - Workmesh uses this field to know which was the latest record pushed/processed/pulled.
         :push_function => Proc.new do |entity, l, *args|
@@ -128,7 +129,7 @@ BlackStack::Workmesh.add_service({
         end,
     }, {
         # I need to push all the clicks
-        :entity_table => :'eml_click',
+        :entity_table => BlackStack::Emails::Click,
         :entity_field_id => :id, # identify each record in the table uniquely
         :entity_field_sort => :create_time # push/process/pull entities in this order - Workmesh uses this field to know which was the latest record pushed/processed/pulled.
         :push_function => Proc.new do |entity, l, *args|
@@ -137,7 +138,7 @@ BlackStack::Workmesh.add_service({
         end,
     }, {
         # I need to push all the unsubscribes
-        :entity_table => :'eml_unsubscribe',
+        :entity_table => BlackStack::Emails::Unsubscribe,
         :entity_field_id => :id, # identify each record in the table uniquely
         :entity_field_sort => :create_time # push/process/pull entities in this order - Workmesh uses this field to know which was the latest record pushed/processed/pulled.
         :push_function => Proc.new do |entity, l, *args|
@@ -161,7 +162,7 @@ BlackStack::Workmesh.add_service({
     #
     # Each account is stored in a row in the `account` table.
     # 
-    :entity_table => :account,
+    :entity_table => BlackStack::MySaaS::Account,
     # Define what is the column in the table where I store the name of the assigned node.
     :entity_field_assignation => :'node_for_micro_emails_timeline',
 
@@ -169,7 +170,7 @@ BlackStack::Workmesh.add_service({
     # This is the list of entities at the SaaS side.
     :protocol => [{
         # I need to push all the emails delivered and received, including bounce reports.
-        :entity_table => :'eml_delivery',
+        :entity_table => BlackStack::Emails::Delivery,
         :entity_field_id => :id, # identify each record in the table uniquely
         :entity_field_sort => :create_time # push/process/pull entities in this order - Workmesh uses this field to know which was the latest record pushed/processed/pulled.
         :push_function => Proc.new do |entity, l, *args|
@@ -198,7 +199,7 @@ BlackStack::Workmesh.add_service({
     #
     # Each account is stored in a row in the `account` table.
     # 
-    :entity_table => :account,
+    :entity_table => BlackStack::MySaaS::Account,
     # Define what is the column in the table where I store the name of the assigned node.
     :entity_field_assignation => :'node_for_micro_emails_timeline',
 
@@ -206,7 +207,7 @@ BlackStack::Workmesh.add_service({
     # This is the list of entities at the SaaS side.
     :protocol => [{
         # I need to push all the emails delivered and received, including bounce reports.
-        :entity_table => :'eml_delivery',
+        :entity_table => BlackStack::Emails::Delivery,
         :entity_field_id => :id, # identify each record in the table uniquely
         :entity_field_sort => :create_time # push/process/pull entities in this order - Workmesh uses this field to know which was the latest record pushed/processed/pulled.
         :push_function => Proc.new do |entity, l, *args|
@@ -247,7 +248,7 @@ BlackStack::Workmesh.add_service({
     #
     # Each account is stored in a row in the `account` table.
     # 
-    :entity_table => :account,
+    :entity_table => BlackStack::MySaaS::Account,
     # Define what is the column in the table where I store the name of the assigned node.
     :entity_field_assignation => :'node_for_micro_emails_timeline',
 
@@ -255,7 +256,7 @@ BlackStack::Workmesh.add_service({
     # This is the list of entities at the SaaS side.
     :protocol => [{
         # I need to push all the emails delivered and received, including bounce reports.
-        :entity_table => :'eml_delivery',
+        :entity_table => BlackStack::Emails::Delivery,
         :entity_field_id => :id, # identify each record in the table uniquely
         :entity_field_sort => :create_time # push/process/pull entities in this order - Workmesh uses this field to know which was the latest record pushed/processed/pulled.
         :push_function => Proc.new do |entity, l, *args|
@@ -284,7 +285,7 @@ BlackStack::Workmesh.add_service({
 When you re-assign an entity to another node, you can choose re-submit (push) all the data to the new new, from the very beginning.
 
 ```ruby
-BlackStack::Workmesh.assignation(:'micro.emails.timeline', {:reassign=>true, :repush=>true})
+BlackStack::Workmesh.assign(account, :'micro.emails.timeline', {:reassign=>true, :repush=>true})
 ```
 
 ## 4. Defining Assignation Criteria
@@ -308,15 +309,15 @@ BlackStack::Workmesh.add_service({
     #
     # Each account is stored in a row in the `account` table.
     # 
-    :entity_table => :account,
+    :entity_table => BlackStack::MySaaS::Account,
     # Define what is the column in the table where I store the name of the assigned node.
     :entity_field_assignation => :'node_for_micro_emails_timeline',
 
-    # Defining assignation criteria
-    :assignation => :entityweight, # other choices are: `:roundrobin` and `:entitynumber`
+    # Defining assign criteria
+    :assign => :entityweight, # other choices are: `:roundrobin` and `:entitynumber`
 
     # Defining a function deciding the weight of an entity.
-    # This function applies only of assignation criteria is `:entityweight`.
+    # This function applies only of assign criteria is `:entityweight`.
     :entity_weight => Proc.new do |entity, l, *args|
         # TODO: Code Me!
         return 1
@@ -340,7 +341,7 @@ BlackStack::Workmesh.add_node({
     :workmesh_port => 3000, 
     # max weight supported
     max_weight => {
-        # define the max-weight supported for each service with assignation criteria `:entityweight`
+        # define the max-weight supported for each service with assign criteria `:entityweight`
         :'micro.emails.timeline' => 500,
     },
 })
@@ -362,12 +363,12 @@ BlackStack::Workmesh.add_node({
     :workmesh_port => 3000,  
     # max weight supported
     max_weight => {
-        # define the max-weight supported for each service with assignation criteria `:entityweight`
+        # define the max-weight supported for each service with assign criteria `:entityweight`
         :'micro.emails.timeline' => 500,
     },
     # max entities supported
     max_entities => {
-        # define the max-entities supported for each service with assignation criteria `:roundrobin` or `:entitynumber`
+        # define the max-entities supported for each service with assign criteria `:roundrobin` or `:entitynumber`
         :'micro.emails.appending' => 5000,
     },
 })
