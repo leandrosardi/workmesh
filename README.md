@@ -65,7 +65,7 @@ Deciding at which is the right entity for distributing your work is an important
 ### 1.4. Assigning your Entities
 
 ```ruby
-account = BlackStack::MySaaS::Account.first
+account = BlackStack::MySaaS::Account.where(:node_for_micro_emails_timeline=>nil).first
 BlackStack::Workmesh.assign(account, :'micro.emails.timeline')
 ```
 

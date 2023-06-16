@@ -1,3 +1,4 @@
+require 'colorize'
 require 'sequel'
 require 'blackstack-core'
 require 'blackstack-nodes'
@@ -17,6 +18,7 @@ module BlackStack
       # array of workers belonging to this node
       attr_accessor :workmesh_api_key
       attr_accessor :workmesh_port
+      attr_accessor :workmesh_service
       # add validations to the node descriptor
       def self.descriptor_errors(h)
         errors = BlackStack::Infrastructure::NodeModule.descriptor_errors(h)
@@ -26,6 +28,10 @@ module BlackStack
         # validate: the key :workmesh_port exists and is an integer
         errors << "The key :workmesh_port is missing" if h[:workmesh_port].nil?
         errors << "The key :workmesh_port must be an Integer" unless h[:workmesh_port].is_a?(Integer)
+        # validate: the key :workmesh_service exists and is an symbol, and its string matches with the name of one of the services in the @@services array
+        errors << "The key :workmesh_service is missing" if h[:workmesh_service].nil?
+        errors << "The key :workmesh_service must be an Symbol" unless h[:workmesh_service].is_a?(Symbol)
+        errors << "The key :workmesh_service must be one of the following: #{BlackStack::Workmesh.services.map { |s| s.name }}" unless BlackStack::Workmesh.services.map { |s| s.name }.include?(h[:workmesh_service].to_s)
         # return list of errors
         errors.uniq
       end
@@ -36,12 +42,14 @@ module BlackStack
         super(h, i_logger)
         self.workmesh_api_key = h[:workmesh_api_key]
         self.workmesh_port = h[:workmesh_port]
+        self.workmesh_service = h[:workmesh_service]
       end # def self.create(h)
       # returh a hash descriptor of the node
       def to_hash()
         ret = super()
         ret[:workmesh_api_key] = self.workmesh_api_key
         ret[:workmesh_port] = self.workmesh_port
+        ret[:workmesh_service] = self.workmesh_service
         ret
       end
     end # class Node
@@ -227,10 +235,38 @@ module BlackStack
       @@nodes << BlackStack::Workmesh::Node.new(h)
     end
 
+    def self.nodes
+      @@nodes
+    end
+
     # add_service
     # add a service to the infrastructure
     def self.add_service(h)
       @@services << BlackStack::Workmesh::Service.new(h)
+    end
+
+    def self.services
+      @@services
+    end
+
+    # assign object to a node using a round-robin algorithm
+    # this method is used when the service assignation is :roundrobin
+    # this method is for internal use only, and it should not be called directly.
+    def self.roundrobing(o, service_name)
+      @@i = 0
+      # getting the service
+      s = @@services.select { |s| s.name.to_s == service_name.to_s }.first
+      # getting all the nodes assigned to the service
+      nodes = @@nodes.select { |n| n.workmesh_service.to_s == service_name.to_s }.sort_by { |n| n.name.to_s }
+      # increase @@i
+      @@i += 1
+      @@i = 0 if @@i >= nodes.length
+      # assign the object to the node
+      n = nodes[@@i]
+      o[s.entity_field_assignation] = n.name
+      o.save
+      # return
+      n
     end
 
     # assign object to a node
@@ -241,6 +277,16 @@ module BlackStack
       raise "The service #{service_name} does not exists" if s.nil?
       # validate: the object o is an instance of the Class defined in the service descriptor (:entity_table)
       raise "The object o is not an instance of :entity_table (#{s.entity_table.to_s})" unless o.is_a?(s.entity_table)
+      # decide the assignation method
+      if s.assignation == :entityweight
+        raise 'The assignation method :entityweight is not implemented yet.'
+      elsif s.assignation == :roundrobin
+        return BlackStack::Workmesh.roundrobing(o, service_name)
+      elsif s.assignation == :entitynumber
+        raise 'The assignation method :entitynumber is not implemented yet.'
+      else
+        raise "The assignation method #{s.assignation} is unknown."
+      end
     end
 
   end # module Workmesh
