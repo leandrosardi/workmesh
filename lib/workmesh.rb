@@ -89,7 +89,7 @@ module BlackStack
         errors << "The key :name must be an String" unless h[:name].is_a?(String)
         # validate: the key :entity_table exists and is an symbol
         errors << "The key :entity_table is missing" if h[:entity_table].nil?
-        errors << "The key :entity_table must be an Class" unless h[:entity_table].is_a?(Class)
+        errors << "The key :entity_table must be an Symbol" unless h[:entity_table].is_a?(Symbol)
         # validate: the key :entity_field_id exists and is an symbol
         errors << "The key :entity_field_id is missing" if h[:entity_field_id].nil?
         errors << "The key :entity_field_id must be an Symbol" unless h[:entity_field_id].is_a?(Symbol)
@@ -185,7 +185,7 @@ module BlackStack
         errors << "The key :name must be an String" unless h[:name].is_a?(String)
         # validate: the key :entity_table exists and is an symbol
         errors << "The key :entity_table is missing" if h[:entity_table].nil?
-        errors << "The key :entity_table must be an Class" unless h[:entity_table].is_a?(Class)
+        errors << "The key :entity_table must be an Symbol" unless h[:entity_table].is_a?(Symbol)
         # validate: the key :entity_field_assignation exists and is an symbol
         errors << "The key :entity_field_assignation is missing" if h[:entity_field_assignation].nil?
         errors << "The key :entity_field_assignation must be an Symbol" unless h[:entity_field_assignation].is_a?(Symbol)
@@ -311,7 +311,7 @@ module BlackStack
     # assign object to a node using a round-robin algorithm
     # this method is used when the service assignation is :roundrobin
     # this method is for internal use only, and it should not be called directly.
-    def self.roundrobing(o, service_name)
+    def self.roundrobin(o, service_name)
       @@roundrobin[service_name] = 0 if @@roundrobin[service_name].nil?
       # getting the service
       s = @@services.select { |s| s.name.to_s == service_name.to_s }.first
@@ -328,14 +328,29 @@ module BlackStack
       n
     end
 
+    # return the assigned node to an object, for a specific service.
+    # if the object has not a node assigned, then return nil.
+    def self.assigned_node(o, service_name)
+      # getting the service
+      s = @@services.select { |s| s.name.to_s == service_name.to_s }.first
+      # validate: the service exists
+      raise "The service #{service_name} does not exists" if s.nil?
+      # validate: the object o is an instance of the Sequel Class mapping the table :entity_table
+      raise "The object o is not an instance of :entity_table (#{s.entity_table.to_s})" unless o.is_a?(Sequel::Model) && o.class.table_name.to_s == s.entity_table.to_s
+      # if the object has not a node assigned, then return nil.
+      return nil if o[s.entity_field_assignation].nil?
+      # return the node
+      @@nodes.select { |n| n.name.to_s == o[s.entity_field_assignation].to_s }.first
+    end
+
     # assign object to a node
     def self.assign(o, service_name, h = {})
       # getting the service
       s = @@services.select { |s| s.name.to_s == service_name.to_s }.first
       # validate: the service exists
       raise "The service #{service_name} does not exists" if s.nil?
-      # validate: the object o is an instance of the Class defined in the service descriptor (:entity_table)
-      raise "The object o is not an instance of :entity_table (#{s.entity_table.to_s})" unless o.is_a?(s.entity_table)
+      # validate: the object o is an instance of the Sequel Class mapping the table :entity_table
+      raise "The object o is not an instance of :entity_table (#{s.entity_table.to_s})" unless o.is_a?(Sequel::Model) && o.class.table_name.to_s == s.entity_table.to_s
       # reassign
       if h[:reassign] == true
         o[s.entity_field_assignation] = nil
@@ -347,7 +362,7 @@ module BlackStack
       if s.assignation == :entityweight
         raise 'The assignation method :entityweight is not implemented yet.'
       elsif s.assignation == :roundrobin
-        return BlackStack::Workmesh.roundrobing(o, service_name)
+        return BlackStack::Workmesh.roundrobin(o, service_name)
       elsif s.assignation == :entitynumber
         raise 'The assignation method :entitynumber is not implemented yet.'
       else
