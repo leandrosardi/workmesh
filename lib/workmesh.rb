@@ -6,6 +6,9 @@ require 'blackstack-deployer'
 require 'simple_command_line_parser'
 require 'simple_cloud_logging'
 
+require_relative '../deployment-routines/update-config'
+require_relative '../deployment-routines/update-source'
+
 =begin
 # TODO: Move this to a gem with the CRDB module
 #
@@ -72,6 +75,18 @@ module BlackStack
         ret[:workmesh_port] = self.workmesh_port
         ret[:workmesh_service] = self.workmesh_service
         ret
+      end
+      # run deployment routines
+      def deploy(l=nil)
+        l = BlackStack::DummyLogger.new(nil) if l.nil?
+
+        l.logs 'Updating config.rb... '
+          BlackStack::Deployer::run_routine(self.name, 'workmesh-update-config')
+        l.done
+
+        l.logs 'Updating source... '
+          BlackStack::Deployer::run_routine(self.name, 'workmesh-update-source')
+        l.done
       end
     end # class Node
 
