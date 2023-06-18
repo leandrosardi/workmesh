@@ -299,6 +299,8 @@ module BlackStack
     # add a node to the infrastructure
     def self.add_node(h)
       @@nodes << BlackStack::Workmesh::Node.new(h)
+      # add to deployer
+      BlackStack::Deployer.add_node(h) #if @@integrate_with_blackstack_deployer
     end
 
     def self.nodes
