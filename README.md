@@ -1,6 +1,8 @@
-**>>This Project is Under Construction<<**
+>> THIS PROJECT IS STILL UNDER CONSTRUCTIONS <<
 
 ![Gem version](https://img.shields.io/gem/v/workmesh)![Gem downloads](https://img.shields.io/gem/dt/workmesh)
+
+![MySaaS Micro-Services Logo](./logo-100.png)
 
 # Workmesh
 
@@ -110,6 +112,7 @@ BlackStack::Workmesh.add_service({
     # Defining micro-service protocol.
     # This is the list of entities at the SaaS side.
     :protocol => [{
+        :name => 'push-delivery',
         # I need to push all the emails delivered and received, including bounce reports.
         :entity_table => BlackStack::Emails::Delivery,
         :entity_field_id => :id, # identify each record in the table uniquely
@@ -382,12 +385,6 @@ Pushing entities to the micro-services.
 
 ```ruby
 BlackStack::Workmesh.push :'micro.emails.timeline'
-```
-
-Pulling data from the micro-services.
-
-```ruby
-BlackStack::Workmesh.pull :'micro.emails.timeline'
 ```
 
 ## 6. Auto-Scaling

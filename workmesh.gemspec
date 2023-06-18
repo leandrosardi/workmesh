@@ -1,7 +1,7 @@
 Gem::Specification.new do |s|
   s.name        = 'workmesh'
   s.version     = '1.0.1'
-  s.date        = '2023-06-15'
+  s.date        = '2023-06-18'
   s.summary     = "WorkMesh is an open-source micro-services orchestration system for automatng software scaling and work distribution."
   s.description = "WorkMesh is an open-source micro-services orchestration system for automatng software scaling and work distribution.
 
