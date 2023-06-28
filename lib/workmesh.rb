@@ -356,8 +356,12 @@ module BlackStack
       raise "The object o is not an instance of :entity_table (#{s.entity_table.to_s})" unless o.is_a?(Sequel::Model) && o.class.table_name.to_s == s.entity_table.to_s
       # if the object has not a node assigned, then return nil.
       return nil if o[s.entity_field_assignation].nil?
-      # return the node
-      @@nodes.select { |n| n.name.to_s == o[s.entity_field_assignation].to_s }.first
+      # find the node
+      ret = @@nodes.select { |n| n.name.to_s == o[s.entity_field_assignation].to_s }.first
+      # validate: the node exists
+      raise "The node #{o[s.entity_field_assignation]} does not exists in configuration file" if ret.nil?
+      # return
+      ret
     end
 
     # assign object to a node
