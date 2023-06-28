@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = 'workmesh'
-  s.version     = '1.0.3'
+  s.version     = '1.0.4'
   s.date        = '2023-06-28'
   s.summary     = "WorkMesh is an open-source micro-services orchestration system for automatng software scaling and work distribution."
   s.description = "WorkMesh is an open-source micro-services orchestration system for automatng software scaling and work distribution.
@@ -21,6 +21,8 @@ Find documentation here: https://github.com/leandrosardi/workmesh
   s.email       = 'leandro.sardi@expandedventure.com'
   s.files       = [
     'lib/workmesh.rb',
+    'deployment-routines/update-config.rb',
+    'deployment-routines/update-source.rb',
   ]
   s.homepage    = 'https://rubygems.org/gems/workmesh'
   s.license     = 'MIT'
