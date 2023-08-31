@@ -80,13 +80,14 @@ module BlackStack
       def deploy(l=nil)
         l = BlackStack::DummyLogger.new(nil) if l.nil?
 
+        l.logs 'Updating source... '
+          BlackStack::Deployer::run_routine(self.name, 'workmesh-update-source')
+        l.done
+
         l.logs 'Updating config.rb... '
           BlackStack::Deployer::run_routine(self.name, 'workmesh-update-config')
         l.done
 
-        l.logs 'Updating source... '
-          BlackStack::Deployer::run_routine(self.name, 'workmesh-update-source')
-        l.done
       end
     end # class Node
 

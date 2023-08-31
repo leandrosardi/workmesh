@@ -7,9 +7,14 @@ BlackStack::Deployer::add_routine({
         :matches => [ /^$/i, /File exists/i ],
         :sudo => false,
     }, { 
+        :command => 'mkdir -p ~/code/%workmesh_service%;',
+        :matches => [ /^$/i, /File exists/i ],
+        :sudo => false,
+    }, { 
         :command => '
-            cd ~/code; 
-            git clone https://github.com/%git_user%/%workmesh_service%;
+            cd ~/code/%workmesh_service%;
+            rm -r ./*;
+            git clone https://github.com/%workmesh_service% .;
         ',
         :matches => [ 
             /already exists and is not an empty directory/i,
