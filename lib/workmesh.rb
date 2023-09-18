@@ -210,7 +210,8 @@ module BlackStack
         if h[:protocols].is_a?(Array)
           h[:protocols].each do |protocol|
             errors << "The key :protocols must be an Array of valid hash descritors of the Protocol class" unless protocol.is_a?(Hash)
-            errors << "The key :protocols must be an Array of valid hash descritors of the Protocol class" unless Protocol.descriptor_errors(protocol).length == 0
+            protocol_errors = Protocol.descriptor_errors(protocol)
+            errors << "The key :protocols must be an Array of valid hash descritors of the Protocol class. Errors found are: #{protocol_errors.join('. ')}" unless protocol_errors.length == 0
           end
         end
         # validate: the key :assignation is nil or it is a symbol belonging the array ASSIGANTIONS
