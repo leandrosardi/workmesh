@@ -2,7 +2,6 @@ require 'colorize'
 require 'sequel'
 require 'blackstack-core'
 require 'blackstack-nodes'
-require 'blackstack-deployer'
 require 'simple_command_line_parser'
 require 'simple_cloud_logging'
 
@@ -75,19 +74,6 @@ module BlackStack
         ret[:workmesh_port] = self.workmesh_port
         ret[:workmesh_service] = self.workmesh_service
         ret
-      end
-      # run deployment routines
-      def deploy(l=nil)
-        l = BlackStack::DummyLogger.new(nil) if l.nil?
-
-        l.logs 'Updating source... '
-          BlackStack::Deployer::run_routine(self.name, 'workmesh-update-source')
-        l.done
-
-        l.logs 'Updating config.rb... '
-          BlackStack::Deployer::run_routine(self.name, 'workmesh-update-config')
-        l.done
-
       end
     end # class Node
 
@@ -314,8 +300,6 @@ module BlackStack
     # add a node to the infrastructure
     def self.add_node(h)
       @@nodes << BlackStack::Workmesh::Node.new(h)
-      # add to deployer
-      BlackStack::Deployer.add_node(h) #if @@integrate_with_blackstack_deployer
     end
 
     def self.nodes
