@@ -96,7 +96,7 @@ module BlackStack
       attr_accessor :entity_table, :entity_field_id, :entity_field_sort
       attr_accessor :push_function, :entity_field_push_time, :entity_field_push_success, :entity_field_push_error_description
       attr_accessor :pull_status_access_point
-      attr_accessor :pull_function, :enttity_field_pull_time, :entity_field_pull_success, :entity_field_pull_error_description 
+      attr_accessor :pull_function #, :enttity_field_pull_time, :entity_field_pull_success, :entity_field_pull_error_description 
 
       def self.descriptor_errors(h)
         errors = []
@@ -123,14 +123,14 @@ module BlackStack
         errors << "The key :entity_field_push_error_description is missing" if h[:push_function] && h[:entity_field_push_error_description].nil?
 
         # valiudate: if :pull_function exists, the key :pull_status_access_point exists and it is a string
-        errors << "The key :pull_status_access_point is missing" if h[:pull_function] && h[:pull_status_access_point].nil?
-        errors << "The key :pull_status_access_point must be an String" unless h[:pull_function].nil? || h[:pull_status_access_point].is_a?(String)
+        #errors << "The key :pull_status_access_point is missing" if h[:pull_function] && h[:pull_status_access_point].nil?
+        #errors << "The key :pull_status_access_point must be an String" unless h[:pull_function].nil? || h[:pull_status_access_point].is_a?(String)
         # validate: if :pull_function exists, the key :entity_field_pull_time exists and it is a symbol
-        errors << "The key :entity_field_pull_time is missing" if h[:pull_function] && h[:entity_field_pull_time].nil?
+        #errors << "The key :entity_field_pull_time is missing" if h[:pull_function] && h[:entity_field_pull_time].nil?
         # validate: if :pull_function exists, the key :entity_field_pull_success exists and it is a symbol
-        errors << "The key :entity_field_pull_success is missing" if h[:pull_function] && h[:entity_field_pull_success].nil?
+        #errors << "The key :entity_field_pull_success is missing" if h[:pull_function] && h[:entity_field_pull_success].nil?
         # validate: if :pull_function exists, the key :entity_field_pull_error_description exists and it is a symbol
-        errors << "The key :entity_field_pull_error_description is missing" if h[:pull_function] && h[:entity_field_pull_error_description].nil?
+        #errors << "The key :entity_field_pull_error_description is missing" if h[:pull_function] && h[:entity_field_pull_error_description].nil?
 
         # return list of errors
         errors.uniq
@@ -148,9 +148,9 @@ module BlackStack
         self.entity_field_push_success = h[:entity_field_push_success]
         self.entity_field_push_error_description = h[:entity_field_push_error_description]
         self.pull_function = h[:pull_function]
-        self.enttity_field_pull_time = h[:entity_field_pull_time]
-        self.entity_field_pull_success = h[:entity_field_pull_success]
-        self.entity_field_pull_error_description = h[:entity_field_pull_error_description]
+        #self.enttity_field_pull_time = h[:entity_field_pull_time]
+        #self.entity_field_pull_success = h[:entity_field_pull_success]
+        #self.entity_field_pull_error_description = h[:entity_field_pull_error_description]
       end
 
       def to_hash()
@@ -164,18 +164,19 @@ module BlackStack
         ret[:entity_field_push_success] = self.entity_field_push_success
         ret[:entity_field_push_error_description] = self.entity_field_push_error_description
         ret[:pull_function] = self.pull_function
-        ret[:enttity_field_pull_time] = self.enttity_field_pull_time
-        ret[:entity_field_pull_success] = self.entity_field_pull_success
-        ret[:entity_field_pull_error_description] = self.entity_field_pull_error_description
+        #ret[:enttity_field_pull_time] = self.enttity_field_pull_time
+        #ret[:entity_field_pull_success] = self.entity_field_pull_success
+        #ret[:entity_field_pull_error_description] = self.entity_field_pull_error_description
         ret
       end
 
       # execute the push function of this protocol, and update the push flags
-      def push(entity, node)
+      def push(entity, node, l=nil)
+        l = BlackStack::DummyLogger.new(nil) if l.nil?
         raise 'The push function is not defined' if self.push_function.nil?
         entity[entity_field_push_time] = now()
         begin
-          self.push_function.call(entity, node)
+          self.push_function.call(entity, node, l)
           entity[entity_field_push_success] = true
           entity[entity_field_push_error_description] = nil
           entity.save
@@ -185,7 +186,19 @@ module BlackStack
           entity.save
           raise e
         end
-      end
+      end # def push(entity, node, l=nil)
+
+      # execute the pull function of this protocol, and update the push flags
+      def pull(node, l=nil)
+        l = BlackStack::DummyLogger.new(nil) if l.nil?
+        raise 'The pull function is not defined' if self.pull_function.nil?
+        begin
+          self.pull_function.call(node, l)
+        rescue => e
+          raise e
+        end
+      end # def pull(node, l=nil)
+
     end # class Protocol
 
     # stub worker class
@@ -210,7 +223,8 @@ module BlackStack
         if h[:protocols].is_a?(Array)
           h[:protocols].each do |protocol|
             errors << "The key :protocols must be an Array of valid hash descritors of the Protocol class" unless protocol.is_a?(Hash)
-            errors << "The key :protocols must be an Array of valid hash descritors of the Protocol class" unless Protocol.descriptor_errors(protocol).length == 0
+            z = Protocol.descriptor_errors(protocol)
+            errors << "The key :protocols must be an Array of valid hash descritors of the Protocol class (errors: #{z.join('. ')})" unless z.length == 0
           end
         end
         # validate: the key :assignation is nil or it is a symbol belonging the array ASSIGANTIONS
@@ -224,7 +238,7 @@ module BlackStack
       # setup dispatcher configuration here
       def initialize(h)
         errors = BlackStack::Workmesh::Service.descriptor_errors(h)
-        raise "The worker descriptor is not valid: #{errors.uniq.join(".\n")}" if errors.length > 0
+        raise "The service descriptor is not valid: #{errors.uniq.join(".\n")}" if errors.length > 0
         self.name = h[:name]
         self.entity_table = h[:entity_table]
         self.entity_field_assignation = h[:entity_field_assignation]
