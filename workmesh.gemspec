@@ -1,7 +1,7 @@
 Gem::Specification.new do |s|
   s.name        = 'workmesh'
-  s.version     = '1.0.6'
-  s.date        = '2023-09-29'
+  s.version     = '1.0.7'
+  s.date        = '2024-03-27'
   s.summary     = "WorkMesh is an open-source micro-services orchestration system for automatng software scaling and work distribution."
   s.description = "WorkMesh is an open-source micro-services orchestration system for automatng software scaling and work distribution.
 
@@ -27,6 +27,7 @@ Find documentation here: https://github.com/leandrosardi/workmesh
   s.homepage    = 'https://rubygems.org/gems/workmesh'
   s.license     = 'MIT'
   s.add_runtime_dependency 'sequel', '~> 5.56.0', '>= 5.56.0'
+  s.add_runtime_dependency 'blackstack-db', '~> 1.0.6', '>= 1.0.6'
   s.add_runtime_dependency 'blackstack-core', '~> 1.2.3', '>= 1.2.3'
   s.add_runtime_dependency 'blackstack-nodes', '~> 1.2.11', '>= 1.2.11'
   s.add_runtime_dependency 'simple_command_line_parser', '~> 1.1.2', '>= 1.1.2'
